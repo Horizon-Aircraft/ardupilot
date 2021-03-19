@@ -560,6 +560,8 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
     normalise_rpy_factors();
 
     set_initialised_ok(success);
+
+    disable_yaw_torque();
 }
 
 // normalizes the roll, pitch and yaw factors so maximum magnitude is 0.5
