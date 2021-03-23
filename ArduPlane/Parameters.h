@@ -574,6 +574,9 @@ public:
     AP_Float fwd_thr_batt_voltage_min;
     AP_Int8  fwd_thr_batt_idx;
 
+    // beacon (non-GPS positioning) library
+    AP_Beacon beacon;
+
 #if EFI_ENABLED
     // EFI Engine Monitor
     AP_EFI efi;

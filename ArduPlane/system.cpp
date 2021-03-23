@@ -102,6 +102,8 @@ void Plane::init_ardupilot()
     gps.init(serial_manager);
 
     init_rc_in();               // sets up rc channels from radio
+    g2.beacon.init();
+
 
 #if HAL_MOUNT_ENABLED
     // initialise camera mount

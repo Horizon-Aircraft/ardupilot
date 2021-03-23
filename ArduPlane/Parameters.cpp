@@ -1317,11 +1317,17 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(guidedHeading, "GUIDED_", 28, ParametersG2, AC_PID),
 #endif // OFFBOARD_GUIDED == ENABLED
 
+	// @Group: BCN
+	    // @Path: ../libraries/AP_Beacon/AP_Beacon.cpp
+	    AP_SUBGROUPINFO(beacon, "BCN", 29, ParametersG2, AP_Beacon),
+
+
     AP_GROUPEND
 };
 
 ParametersG2::ParametersG2(void) :
     ice_control(plane.rpm_sensor)
+	, beacon(plane.serial_manager)
 #if HAL_SOARING_ENABLED
     ,soaring_controller(plane.TECS_controller, plane.aparm)
 #endif

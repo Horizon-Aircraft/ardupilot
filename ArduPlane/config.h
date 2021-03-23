@@ -32,6 +32,8 @@
  # define ADVANCED_FAILSAFE ENABLED
 #endif
 
+# define BEACON_ENABLED !HAL_MINIMIZE_FEATURES
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Optical flow sensor support
