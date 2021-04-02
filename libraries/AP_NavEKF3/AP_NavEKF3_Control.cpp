@@ -498,10 +498,33 @@ bool NavEKF3_core::readyToUseGPS(void) const
 bool NavEKF3_core::readyToUseRangeBeacon(void) const
 {
     if (frontend->sources.getPosXYSource() != AP_NavEKF_Source::SourceXY::BEACON) {
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Source Beacon Not Define");
         return false;
     }
 
-    return tiltAlignComplete && yawAlignComplete && delAngBiasLearned && rngBcnAlignmentCompleted && rngBcnDataToFuse;
+    if(!tiltAlignComplete){
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Tilt not align");
+    	return false;
+    }
+    if(!yawAlignComplete){
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "yaw not align");
+    	return false;
+    }
+    if(!delAngBiasLearned){
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "delAngBiasLearned fault");
+    	return false;
+    }
+    if(!rngBcnAlignmentCompleted){
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Beacon alignment not completed");
+    	return false;
+    }
+    if(!rngBcnDataToFuse){
+    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "new range data notready to fuse");
+    	return false;
+    }
+
+  return tiltAlignComplete && yawAlignComplete && delAngBiasLearned && rngBcnAlignmentCompleted && rngBcnDataToFuse;
+
 }
 
 // return true if the filter is ready to use external nav data
@@ -574,6 +597,8 @@ bool NavEKF3_core::setOriginLLH(const Location &loc)
     // define Earth rotation vector in the NED navigation frame at the origin
     calcEarthRateNED(earthRateNED, loc.lat);
     validOrigin = true;
+
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u origin set",(unsigned)imu_index);
     return true;
 }
 

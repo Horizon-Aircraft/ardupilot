@@ -129,6 +129,7 @@ void AP_Beacon::update(void)
     if (!device_ready()) {
         return;
     }
+
     _driver->update();
 
     // update boundary for fence
@@ -154,6 +155,18 @@ bool AP_Beacon::get_origin(Location &origin_loc) const
     origin_loc.alt = origin_alt * 100;
 
     return true;
+}
+
+Location AP_Beacon::get_origin1() const
+{
+
+    // return origin
+    Location origin_loc;
+    origin_loc.lat = origin_lat * 1.0e7f;
+    origin_loc.lng = origin_lon * 1.0e7f;
+    origin_loc.alt = origin_alt * 100;
+
+    return origin_loc;
 }
 
 // return position in NED from position estimate system's origin in meters

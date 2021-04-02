@@ -45,14 +45,14 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(update_GPS_10Hz,        10,    400),
     SCHED_TASK(navigate,               10,    150),
     SCHED_TASK(update_compass,         10,    200),
-    SCHED_TASK(read_airspeed,          10,    100),
+/*    SCHED_TASK(read_airspeed,          10,    100),*/
     SCHED_TASK(update_alt,             10,    200),
+	SCHED_TASK_CLASS(AP_Beacon,            &plane.g2.beacon,           update,         400,  50),
     SCHED_TASK(adjust_altitude_target, 10,    200),
 #if ADVANCED_FAILSAFE == ENABLED
     SCHED_TASK(afs_fs_check,           10,    100),
 #endif
-	SCHED_TASK_CLASS(AP_Beacon,            &plane.g2.beacon,           update,         400,  50),
-    SCHED_TASK(ekf_check,              10,     75),
+	SCHED_TASK(ekf_check,              10,     75),
     SCHED_TASK_CLASS(GCS,            (GCS*)&plane._gcs,       update_receive,   300,  500),
     SCHED_TASK_CLASS(GCS,            (GCS*)&plane._gcs,       update_send,      300,  750),
     SCHED_TASK_CLASS(AP_ServoRelayEvents, &plane.ServoRelayEvents, update_events,          50,  150),
@@ -69,9 +69,11 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(one_second_loop,         1,    400),
     SCHED_TASK(check_long_failsafe,     3,    400),
     SCHED_TASK(rpm_update,             10,    100),
+/*
 #if AP_AIRSPEED_AUTOCAL_ENABLE
     SCHED_TASK(airspeed_ratio_update,   1,    100),
 #endif // AP_AIRSPEED_AUTOCAL_ENABLE
+*/
 #if HAL_MOUNT_ENABLED
     SCHED_TASK_CLASS(AP_Mount, &plane.camera_mount, update, 50, 100),
 #endif // HAL_MOUNT_ENABLED
@@ -297,6 +299,12 @@ void Plane::one_second_loop()
             // reset the landing altitude correction
             landing.alt_offset = 0;
     }
+
+
+    if (AP_Notify::flags.armed)
+    logger.Write_Beacon(g2.beacon);
+
+
 }
 
 void Plane::compass_save()
@@ -309,6 +317,15 @@ void Plane::compass_save()
          */
         compass.save_offsets();
     }
+/*
+    // position
+    Vector3f pos;
+    float accuracy = 0.0f;
+    g2.beacon.get_vehicle_position_ned(pos, accuracy);
+//    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Distance to Beacon 1,2,3,4 are : %f %f %f %f and",g2.beacon.beacon_distance(0),g2.beacon.beacon_distance(1),g2.beacon.beacon_distance(2),g2.beacon.beacon_distance(3));
+
+    gcs().send_text(MAV_SEVERITY_INFO,"beacon reported pos in NED: %f %f", pos.x, pos.y);
+*/
 }
 
 void Plane::efi_update(void)
@@ -456,6 +473,7 @@ void Plane::set_flight_stage(AP_Vehicle::FixedWing::FlightStage fs)
 
 void Plane::update_alt()
 {
+
     barometer.update();
 
     if (quadplane.available()) {
@@ -507,7 +525,6 @@ void Plane::update_alt()
                                                  tecs_hgt_afe(),
                                                  aerodynamic_load_factor);
     }
-    logger.Write_Beacon(g2.beacon);
 }
 
 /*

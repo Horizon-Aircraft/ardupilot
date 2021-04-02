@@ -69,6 +69,7 @@ public:
 
     // return origin of position estimate system in lat/lon
     bool get_origin(Location &origin_loc) const;
+    Location get_origin1() const;
 
     // return vehicle position in NED from position estimate system's origin in meters
     bool get_vehicle_position_ned(Vector3f& pos, float& accuracy_estimate) const;

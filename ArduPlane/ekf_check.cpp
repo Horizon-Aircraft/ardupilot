@@ -35,6 +35,10 @@ void Plane::ekf_check()
     // exit immediately if ekf has no origin yet - this assumes the origin can never become unset
     Location temp_loc;
     if (!ahrs.get_origin(temp_loc)) {
+    	if(g2.beacon.get_origin(temp_loc)){
+    	ahrs.set_origin(g2.beacon.get_origin1());
+    	temp_loc = g2.beacon.get_origin1();
+    	}
         return;
     }
 
@@ -172,7 +176,6 @@ void Plane::failsafe_ekf_off_event(void)
     if (!ekf_check_state.failsafe_on) {
         return;
     }
-
     ekf_check_state.failsafe_on = false;
     AP::logger().Write_Error(LogErrorSubsystem::FAILSAFE_EKFINAV, LogErrorCode::FAILSAFE_RESOLVED);
 }
