@@ -387,6 +387,7 @@ void QuadPlane::tiltrotor_vectoring(void)
     float tilt_threshold = (tilt.max_angle_deg/90.0f);
     bool no_yaw = (tilt.current_tilt > tilt_threshold);
     if (no_yaw) {
+    	if(disable_tilt_max!=1){
         // fixed wing tilt. We need to apply inverse scaling with throttle, and remove the surface speed scaling as
         // we don't want tilt impacted by airspeed
         const float scaler = plane.control_mode == &plane.mode_manual?1:(tilt_throttle_scaling() / plane.get_speed_scaler());
@@ -399,6 +400,7 @@ void QuadPlane::tiltrotor_vectoring(void)
         SRV_Channels::set_output_scaled(SRV_Channel::k_tiltMotorRearLeft,1000 * constrain_float(base_output + left,0,1));
         SRV_Channels::set_output_scaled(SRV_Channel::k_tiltMotorRearRight,1000 * constrain_float(base_output + right,0,1));
         SRV_Channels::set_output_scaled(SRV_Channel::k_tiltMotorRear,  1000 * constrain_float(base_output + mid,0,1));
+    	}
     } else {
         const float yaw_out = motors->get_yaw();
         const float roll_out = motors->get_roll();

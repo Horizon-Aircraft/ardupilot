@@ -598,6 +598,10 @@ private:
 
     // additional options
     AP_Int32 options;
+
+    // additional options
+    AP_Int8 disable_tilt_max;
+
     enum {
         OPTION_LEVEL_TRANSITION=(1<<0),
         OPTION_ALLOW_FW_TAKEOFF=(1<<1),
