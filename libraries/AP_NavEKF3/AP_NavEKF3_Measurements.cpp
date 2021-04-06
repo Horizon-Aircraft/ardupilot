@@ -932,6 +932,13 @@ void NavEKF3_core::readRngBcnData()
                     ekfOriginHgtVar = sq(beaconVehiclePosErr);
                 }
             }
+			if ( reset_home_prev != frontend->_reset_home){
+				Location origin_loc;
+				if (beacon->get_origin(origin_loc)) {
+					setOriginLLH(origin_loc);
+					GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Home reset successful");
+				}
+			}
         } else {
             rngBcnGoodToAlign = false;
         }
@@ -947,7 +954,7 @@ void NavEKF3_core::readRngBcnData()
         rngBcnDataDelayed.beacon_posNED.x += bcnPosOffsetNED.x;
         rngBcnDataDelayed.beacon_posNED.y += bcnPosOffsetNED.y;
     }
-
+    reset_home_prev = frontend->_reset_home;
 }
 
 /********************************************************

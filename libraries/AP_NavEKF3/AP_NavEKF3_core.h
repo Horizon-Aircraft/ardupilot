@@ -1411,6 +1411,9 @@ private:
     // when was attitude filter status last non-zero?
     uint32_t last_filter_ok_ms;
     
+    // reset home previous
+    int8_t reset_home_prev;
+
     // should we assume zero sideslip?
     bool assume_zero_sideslip(void) const;
 

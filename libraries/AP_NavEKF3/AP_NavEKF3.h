@@ -442,6 +442,7 @@ private:
     AP_Float _ballisticCoef_x;      // ballistic coefficient measured for flow in X body frame directions
     AP_Float _ballisticCoef_y;      // ballistic coefficient measured for flow in Y body frame directions
     AP_Float _momentumDragCoef;     // lift rotor momentum drag coefficient
+    AP_Int8 _reset_home;     // reset home
 
 // Possible values for _flowUse
 #define FLOW_USE_NONE    0

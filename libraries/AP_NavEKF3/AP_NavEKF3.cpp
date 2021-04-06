@@ -690,6 +690,13 @@ const AP_Param::GroupInfo NavEKF3::var_info2[] = {
     // @User: Advanced
     AP_GROUPINFO("DRAG_MCOEF", 5, NavEKF3, _momentumDragCoef, 0.0f),
 
+	// @Param: RESET_HOME
+	// @DisplayName: EKF3 RESET_HOME
+	// @Description: RESET_HOME
+	// @User: Advanced
+	// @Bitmask:  change value to reset home
+	AP_GROUPINFO("RESET", 6, NavEKF3, _reset_home, 0),
+
     AP_GROUPEND
 };
 
