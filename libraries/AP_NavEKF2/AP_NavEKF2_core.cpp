@@ -369,14 +369,14 @@ void NavEKF2_core::InitialiseVariablesMag()
 // This method can only be used when the vehicle is static
 bool NavEKF2_core::InitialiseFilterBootstrap(void)
 {
-    // If we are a plane and don't have GPS lock then don't initialise
+/*    // If we are a plane and don't have GPS lock then don't initialise
     if (assume_zero_sideslip() && dal.gps().status(dal.gps().primary_sensor()) < AP_DAL_GPS::GPS_OK_FIX_3D) {
         dal.snprintf(prearm_fail_string,
                            sizeof(prearm_fail_string),
                            "EKF2 init failure: No GPS lock");
         statesInitialised = false;
         return false;
-    }
+    }*/
 
     if (statesInitialised) {
         // we are initialised, but we don't return true until the IMU

@@ -609,6 +609,9 @@ private:
 
     void InitialiseVariablesMag();
 
+    // reset home previous
+    int8_t reset_home_prev;
+
     // reset the horizontal position states uing the last GPS measurement
     void ResetPosition(void);
 

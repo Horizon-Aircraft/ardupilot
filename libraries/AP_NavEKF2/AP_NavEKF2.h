@@ -486,4 +486,5 @@ private:
     // return true if a new core has a better score than an existing core, including
     // checks for alignment
     bool coreBetterScore(uint8_t new_core, uint8_t current_core) const;
+    AP_Int8 _reset_home;     // reset home
 };

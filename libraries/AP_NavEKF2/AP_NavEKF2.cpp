@@ -602,6 +602,14 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
     // @User: Advanced
     // @RebootRequired: True
     AP_GROUPINFO("GSF_RST_MAX", 57, NavEKF2, _gsfResetMaxCount, 2),
+
+	// @Param: RESET_HOME
+	// @DisplayName: EKF3 RESET_HOME
+	// @Description: RESET_HOME
+	// @User: Advanced
+	// @Bitmask:  change value to reset home
+	AP_GROUPINFO("RESETek2", 58, NavEKF2, _reset_home, 0),
+
     
     AP_GROUPEND
 };

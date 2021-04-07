@@ -861,6 +861,13 @@ void NavEKF2_core::readRngBcnData()
                     ekfOriginHgtVar = sq(beaconVehiclePosErr);
                 }
             }
+			if ( reset_home_prev != frontend->_reset_home){
+				Location origin_loc;
+				if (beacon->get_origin(origin_loc)) {
+					setOriginLLH(origin_loc);
+					GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Home reset successful");
+				}
+			}
         } else {
             rngBcnGoodToAlign = false;
         }
@@ -875,7 +882,7 @@ void NavEKF2_core::readRngBcnData()
 
     // Check the buffer for measurements that have been overtaken by the fusion time horizon and need to be fused
     rngBcnDataToFuse = storedRangeBeacon.recall(rngBcnDataDelayed,imuDataDelayed.time_ms);
-
+    reset_home_prev = frontend->_reset_home;
 }
 
 /*
