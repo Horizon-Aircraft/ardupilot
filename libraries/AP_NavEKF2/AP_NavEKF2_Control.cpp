@@ -396,29 +396,7 @@ bool NavEKF2_core::readyToUseGPS(void) const
 // return true if the filter to be ready to use the beacon range measurements
 bool NavEKF2_core::readyToUseRangeBeacon(void) const
 {
-
-    if(!tiltAlignComplete){
-    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Tilt not align");
-    	return false;
-    }
-    if(!yawAlignComplete){
-    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "yaw not align");
-    	return false;
-    }
-    if(!delAngBiasLearned){
-    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "delAngBiasLearned fault");
-    	return false;
-    }
-    if(!rngBcnAlignmentCompleted){
-    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Beacon alignment not completed");
-    	return false;
-    }
-    if(!rngBcnDataToFuse){
-    	GCS_SEND_TEXT(MAV_SEVERITY_INFO, "new range data notready to fuse");
-    	return false;
-    }
-
-  return tiltAlignComplete && yawAlignComplete && delAngBiasLearned && rngBcnAlignmentCompleted && rngBcnDataToFuse;
+  return tiltAlignComplete && yawAlignComplete && delAngBiasLearned && rngBcnDataToFuse && rngBcnAlignmentCompleted;
 }
 
 // return true if the filter to be ready to use external nav data

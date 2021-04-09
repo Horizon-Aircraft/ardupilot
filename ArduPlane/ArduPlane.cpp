@@ -210,6 +210,8 @@ void Plane::update_logging1(void)
 
     if (should_log(MASK_LOG_ATTITUDE_MED))
         ahrs.Write_AOA_SSA();
+
+    logger.Write_Beacon(g2.beacon);
 }
 
 /*
@@ -301,8 +303,8 @@ void Plane::one_second_loop()
     }
 
 
-    if (AP_Notify::flags.armed)
-    logger.Write_Beacon(g2.beacon);
+
+
 
 
 }

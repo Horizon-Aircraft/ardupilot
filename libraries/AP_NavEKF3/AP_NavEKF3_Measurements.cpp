@@ -886,7 +886,11 @@ void NavEKF3_core::readRngBcnData()
             rngBcnDataNew.rngErr = frontend->_rngBcnNoise;
 
             // set the range measurement
-            rngBcnDataNew.rng = beacon->beacon_distance(index);
+            float distance;
+            distance = beacon->beacon_distance(index);
+
+            // calculate and filter derivative
+            rngBcnDataNew.rng += calc_lowpass_alpha_dt(localFilterTimeStep_ms, 2) * (distance -  rngBcnDataNew.rng);
 
             // set the beacon position
             rngBcnDataNew.beacon_posNED = beacon->beacon_position(index);

@@ -35,6 +35,9 @@ void Plane::ekf_check()
     // exit immediately if ekf has no origin yet - this assumes the origin can never become unset
     Location temp_loc;
     if (!ahrs.get_origin(temp_loc)) {
+    	if(g2.beacon.get_origin(temp_loc)){
+    	ahrs.set_origin(g2.beacon.get_origin1());
+    	}
         return;
     }
 
