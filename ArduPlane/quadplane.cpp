@@ -352,12 +352,6 @@ const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
     AP_SUBGROUPEXTENSION("",59, QuadPlane, var_info2),
 
-    // @Param: TILT_DTM
-    // @DisplayName: quadplane DISABLE_TILT_MAX
-    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
-    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
-    AP_GROUPINFO("TILT_DTM", 60, QuadPlane, disable_tilt_max, 0),
-
     AP_GROUPEND
 };
 
@@ -560,6 +554,13 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @Units: deg/s
     // @Range: 10 500
     AP_GROUPINFO("TAILSIT_RAT_VT", 25, QuadPlane, tailsitter.transition_rate_vtol, 50),
+
+
+    // @Param: TILT_DTM
+    // @DisplayName: quadplane DISABLE_TILT_MAX
+    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
+    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
+    AP_GROUPINFO("TILT_DTM", 26, QuadPlane, disable_tilt_max, 0),
 
     AP_GROUPEND
 };
