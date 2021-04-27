@@ -1730,7 +1730,9 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
                                          (int)(ahrs.roll_sensor/100),
                                          (int)(ahrs.pitch_sensor/100));
     }
-    return ret;
+    return true;
+
+    //true
 }
 
 // return true if it is safe to provide assistance
@@ -1800,7 +1802,9 @@ void QuadPlane::update_transition(void)
             }
         }
     } else {
-        assisted_flight = false;
+        assisted_flight = true;
+
+        // true
     }
 
     if (is_tailsitter()) {
@@ -1962,6 +1966,10 @@ void QuadPlane::update_transition(void)
         return;
     }
 
+/*    transition_state = TRANSITION_AIRSPEED_WAIT;
+    assisted_flight = true;
+    // give full authority to attitude control
+    attitude_control->set_throttle_mix_max(1.0f);*/
     motors_output();
 }
 
