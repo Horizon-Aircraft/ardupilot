@@ -1779,10 +1779,10 @@ void QuadPlane::update_transition(void)
     float aspeed;
     bool have_airspeed = ahrs.airspeed_estimate(aspeed);
 
-    // tailsitters use angle wait, not airspeed wait
+/*    // tailsitters use angle wait, not airspeed wait
     if (is_tailsitter() && transition_state == TRANSITION_AIRSPEED_WAIT) {
         transition_state = TRANSITION_ANGLE_WAIT_FW;
-    }
+    }*/
 
     /*
       see if we should provide some assistance
