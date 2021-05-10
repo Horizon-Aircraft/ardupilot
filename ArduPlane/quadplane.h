@@ -327,6 +327,12 @@ private:
     uint32_t angle_error_start_ms;
     AP_Float assist_delay;
 
+
+    // Horizon Aircraft
+    AP_Float min_alt;
+    AP_Int32 land_time_out;
+
+
     // altitude to trigger assistance
     AP_Int16 assist_alt;
     uint32_t alt_error_start_ms;
@@ -666,6 +672,9 @@ private:
       are we in any of the phases of a VTOL landing?
      */
     bool in_vtol_land_sequence(void) const;
+
+    bool start_shutdown_motors{false};
+    uint32_t start_count=0;
 
     // Q assist state, can be enabled, disabled or force. Default to enabled
     Q_ASSIST_STATE_ENUM q_assist_state = Q_ASSIST_STATE_ENUM::Q_ASSIST_ENABLED;

@@ -39,6 +39,7 @@
 #include <AP_AHRS/AP_AHRS.h>         // ArduPilot Mega DCM Library
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>     // Range finder library
+#include <AP_RangeFinder/AP_RangeFinder_Backend.h>     // Range finder library
 #include <Filter/Filter.h>                     // Filter library
 #include <AP_Camera/AP_Camera.h>          // Photo or video camera
 #include <AP_Airspeed/AP_Airspeed.h>
@@ -872,6 +873,7 @@ private:
     void Log_Write_AETR();
     void Log_Write_MavCmdI(const mavlink_command_int_t &packet);
     void log_init();
+    void Log_Write_ALTT();
 
     // Parameters.cpp
     void load_parameters(void) override;
