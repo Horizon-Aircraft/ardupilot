@@ -562,6 +562,19 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
     AP_GROUPINFO("TILT_DTM", 26, QuadPlane, disable_tilt_max, 0),
 
+    // @Param: MIN_ALT
+    // @DisplayName: quadplane DISABLE_TILT_MAX
+    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
+    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
+    AP_GROUPINFO("MIN_ALT", 27, QuadPlane, min_alt, 0.17),
+
+    // @Param: LAND_DELAY_S
+    // @DisplayName: quadplane DISABLE_TILT_MAX
+    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
+    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
+    AP_GROUPINFO("LAND_DELAY_S", 28, QuadPlane, land_time_out, 1),
+
+
     AP_GROUPEND
 };
 
@@ -2465,12 +2478,12 @@ void QuadPlane::vtol_position_controller(void)
     if (!setup()) {
         return;
     }
-
     setup_target_position();
 
     const Location &loc = plane.next_WP_loc;
 
     check_attitude_relax();
+
 
     // horizontal position control
     switch (poscontrol.state) {
@@ -2584,7 +2597,7 @@ void QuadPlane::vtol_position_controller(void)
         plane.nav_controller->update_waypoint(plane.prev_WP_loc, loc);
         FALLTHROUGH;
 
-    case QPOS_LAND_FINAL:
+    case QPOS_LAND_FINAL:{
 
         // set position controller desired velocity and acceleration to zero
         pos_control->set_desired_velocity_xy(0.0f,0.0f);
@@ -2607,6 +2620,7 @@ void QuadPlane::vtol_position_controller(void)
                                                                       plane.nav_pitch_cd,
                                                                       get_pilot_input_yaw_rate_cds() + get_weathervane_yaw_rate_cds());
         break;
+    }
 
     case QPOS_LAND_COMPLETE:
         // nothing to do
@@ -2653,18 +2667,43 @@ void QuadPlane::vtol_position_controller(void)
         break;
     }
 
-    case QPOS_LAND_FINAL:
-        pos_control->set_alt_target_from_climb_rate(-land_speed_cms, plane.G_Dt, true);
-        if ((options & OPTION_DISABLE_GROUND_EFFECT_COMP) == 0) {
-            ahrs.setTouchdownExpected(true);
-        }
-        break;
+    case QPOS_LAND_FINAL:{
+    	pos_control->set_alt_target_from_climb_rate(-land_speed_cms, plane.G_Dt, true);
+
+    	// This works fine in simulation, however a low pass filter may be required
+    	// if the Lidar sensor data are too noisy. To be tested first.
+    	float height = plane.rangefinder_state.height_estimate;
+    	if(height<min_alt && AP_Notify::flags.armed){
+    		start_shutdown_motors = true;
+    	} else{
+    		start_shutdown_motors = false;
+    	}
+    	if(start_shutdown_motors && start_count==0){
+    		start_count = AP_HAL::millis();
+    	}
+
+    	if((AP_HAL::millis() - start_count)/1e3 > land_time_out && start_shutdown_motors && AP_Notify::flags.armed) {
+    		// motors should be in the spin when armed state to warn user they could become active
+			motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::GROUND_IDLE);
+			motors->set_throttle(0);
+			last_motors_active_ms = 0;
+			plane.arming.disarm(AP_Arming::Method::LANDED);
+	    	start_count = 0;
+	    	start_shutdown_motors = false;
+    	}
+    	if ((options & OPTION_DISABLE_GROUND_EFFECT_COMP) == 0) {
+    		ahrs.setTouchdownExpected(true);
+    	}
+    	break;
+    }
 
     case QPOS_LAND_COMPLETE:
         break;
     }
 
     run_z_controller();
+
+
 }
 
 

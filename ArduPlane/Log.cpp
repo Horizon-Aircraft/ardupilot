@@ -1,4 +1,5 @@
 #include "Plane.h"
+#include <AP_RangeFinder/AP_RangeFinder_Backend.h>     // Range finder library
 
 #if LOGGING_ENABLED == ENABLED
 
@@ -241,6 +242,27 @@ void Plane::Log_Write_AETR()
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
 
+struct PACKED log_ALTT {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float height;
+    uint16_t hgt;
+};
+
+void Plane::Log_Write_ALTT()
+{
+	//uint16_t hgt1 = rangefinder.get_distance_cm1() * 0.01f;
+	uint16_t hgt1 = plane.rangefinder_state.height_estimate;
+	struct log_ALTT pkt = {
+	        LOG_PACKET_HEADER_INIT(LOG_ALTT_MSG)
+	        ,time_us  : AP_HAL::micros64()
+	        ,height  : plane.relative_ground_altitude(plane.g.rangefinder_landing)
+			,hgt	: hgt1,
+	        };
+
+	    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+
 void Plane::Log_Write_RC(void)
 {
     logger.Write_RCIN();
@@ -412,7 +434,7 @@ const struct LogStructure Plane::log_structure[] = {
     { LOG_PIDG_MSG, sizeof(log_PID),
       "PIDG", PID_FMT,  PID_LABELS, PID_UNITS, PID_MULTS },
 
-// @LoggerMessage: AETR
+// @LoggerMessage: AETRq
 // @Description: Normalised pre-mixer control surface outputs
 // @Field: TimeUS: Time since system startup
 // @Field: Ail: Pre-mixer value for aileron output (between -4500 to 4500)
@@ -436,6 +458,14 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: HdgA: target heading lim
     { LOG_OFG_MSG, sizeof(log_OFG_Guided),     
       "OFG", "QffffBff",    "TimeUS,Arsp,ArspA,Alt,AltA,AltF,Hdg,HdgA", "s-------", "F-------" }, 
+
+// @LoggerMessage: ALTT
+// @Description: OFfboard-Guided - an advanced version of GUIDED for companion computers that includes rate/s.
+// @Field: TimeUS: Time since system startup
+// @Field: ALTT:  target airspeed cm
+  { LOG_ALTT_MSG, sizeof(log_ALTT),
+	"ALTT", "QfH",    "TimeUS,hgt,rng", "s--", "F--" },
+
 
 // @LoggerMessage: CMDI
 // @Description: Generic CommandInt message logger(CMDI) 
