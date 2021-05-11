@@ -247,6 +247,7 @@ struct PACKED log_ALTT {
     uint64_t time_us;
     float height;
     uint16_t hgt;
+    bool shutdown_motors;
 };
 
 void Plane::Log_Write_ALTT()
@@ -257,7 +258,8 @@ void Plane::Log_Write_ALTT()
 	        LOG_PACKET_HEADER_INIT(LOG_ALTT_MSG)
 	        ,time_us  : AP_HAL::micros64()
 	        ,height  : plane.relative_ground_altitude(plane.g.rangefinder_landing)
-			,hgt	: hgt1,
+			,hgt	: hgt1
+			,shutdown_motors	:quadplane.start_shutdown_motors,
 	        };
 
 	    logger.WriteBlock(&pkt, sizeof(pkt));
@@ -464,7 +466,7 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: TimeUS: Time since system startup
 // @Field: ALTT:  target airspeed cm
   { LOG_ALTT_MSG, sizeof(log_ALTT),
-	"ALTT", "QfH",    "TimeUS,hgt,rng", "s--", "F--" },
+	"ALTT", "QfHB",    "TimeUS,hgt,rng,shut", "s---", "F---" },
 
 
 // @LoggerMessage: CMDI

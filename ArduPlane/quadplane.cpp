@@ -2688,7 +2688,7 @@ void QuadPlane::vtol_position_controller(void)
         const uint32_t _sensor_status_flags = ~health & enabled & present;
     	bool Lidar_health = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
     	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
-    	if(height<minimum_safe_altitude && height>0 && AP_Notify::flags.armed && !Lidar_health){
+    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3 && height>0 && AP_Notify::flags.armed && !Lidar_health){
     		start_shutdown_motors = true;
     	} else{
     		start_shutdown_motors = false;
@@ -2705,6 +2705,7 @@ void QuadPlane::vtol_position_controller(void)
 			plane.arming.disarm(AP_Arming::Method::LANDED);
 	    	start_count = 0;
 	    	start_shutdown_motors = false;
+	    	gcs().send_text(MAV_SEVERITY_NOTICE, "Landing forced shutdown, min alt reached");
     	}
     	if ((options & OPTION_DISABLE_GROUND_EFFECT_COMP) == 0) {
     		ahrs.setTouchdownExpected(true);
@@ -2713,6 +2714,8 @@ void QuadPlane::vtol_position_controller(void)
     }
 
     case QPOS_LAND_COMPLETE:
+    	start_count = 0;
+    	start_shutdown_motors = false;
         break;
     }
 
