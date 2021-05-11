@@ -1743,7 +1743,9 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
                                          (int)(ahrs.roll_sensor/100),
                                          (int)(ahrs.pitch_sensor/100));
     }
-    return ret;
+    return true;
+
+    //true
 }
 
 // return true if it is safe to provide assistance
@@ -1790,10 +1792,10 @@ void QuadPlane::update_transition(void)
     float aspeed;
     bool have_airspeed = ahrs.airspeed_estimate(aspeed);
 
-    // tailsitters use angle wait, not airspeed wait
+/*    // tailsitters use angle wait, not airspeed wait
     if (is_tailsitter() && transition_state == TRANSITION_AIRSPEED_WAIT) {
         transition_state = TRANSITION_ANGLE_WAIT_FW;
-    }
+    }*/
 
     /*
       see if we should provide some assistance
@@ -1813,7 +1815,9 @@ void QuadPlane::update_transition(void)
             }
         }
     } else {
-        assisted_flight = false;
+        assisted_flight = true;
+
+        // true
     }
 
     if (is_tailsitter()) {
@@ -1975,6 +1979,10 @@ void QuadPlane::update_transition(void)
         return;
     }
 
+/*    transition_state = TRANSITION_AIRSPEED_WAIT;
+    assisted_flight = true;
+    // give full authority to attitude control
+    attitude_control->set_throttle_mix_max(1.0f);*/
     motors_output();
 }
 
@@ -2680,7 +2688,7 @@ void QuadPlane::vtol_position_controller(void)
         const uint32_t _sensor_status_flags = ~health & enabled & present;
     	bool Lidar_health = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
     	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
-    	if(height<minimum_safe_altitude && height>0 && AP_Notify::flags.armed && !Lidar_health){
+    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3 && height>0 && AP_Notify::flags.armed && !Lidar_health){
     		start_shutdown_motors = true;
     	} else{
     		start_shutdown_motors = false;
@@ -2697,6 +2705,7 @@ void QuadPlane::vtol_position_controller(void)
 			plane.arming.disarm(AP_Arming::Method::LANDED);
 	    	start_count = 0;
 	    	start_shutdown_motors = false;
+	    	gcs().send_text(MAV_SEVERITY_NOTICE, "Landing forced shutdown, min alt reached");
     	}
     	if ((options & OPTION_DISABLE_GROUND_EFFECT_COMP) == 0) {
     		ahrs.setTouchdownExpected(true);
@@ -2705,6 +2714,8 @@ void QuadPlane::vtol_position_controller(void)
     }
 
     case QPOS_LAND_COMPLETE:
+    	start_count = 0;
+    	start_shutdown_motors = false;
         break;
     }
 
