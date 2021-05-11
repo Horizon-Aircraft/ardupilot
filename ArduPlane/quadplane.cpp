@@ -575,6 +575,20 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     AP_GROUPINFO("LAND_DELAY_S", 28, QuadPlane, land_time_out, 1),
 
 
+    // @Param: PITCH_MIN
+    // @DisplayName: quadplane PITCH_MIN
+    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
+    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
+    AP_GROUPINFO("PITCH_MIN_CD", 29, QuadPlane, pitch_min_cd, -9000),
+
+
+    // @Param: PITCH_MAX
+    // @DisplayName: quadplane PITCH_MAX
+    // @Description: if set to one, the activation of FW mode is disabled when tilt angle > Q_TILT_MAX
+    // @Bitmask: 0:Level Transition,1:Allow FW Takeoff,2:Allow FW Land,3:Vtol Takeoff Frame,4:Use FW Approach,5:Use QRTL,6:Use Governor,7:Force Qassist,8:Mtrs_Only_Qassist,9:Airmode_On_Arm,10:Disarmed Yaw Tilt,11:Delay Spoolup,12:disable Qassist based on synthetic airspeed,13:Disable Ground Effect Compensation
+    AP_GROUPINFO("PITCH_MAX_CD", 30, QuadPlane, pitch_max_cd, 9000),
+
+
     AP_GROUPEND
 };
 
@@ -971,6 +985,7 @@ void QuadPlane::update_yaw_target(void)
  */
 void QuadPlane::multicopter_attitude_rate_update(float yaw_rate_cds)
 {
+	int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd, pitch_min_cd, pitch_max_cd);
     check_attitude_relax();
 
     bool use_multicopter_control = in_vtol_mode() && !in_tailsitter_vtol_transition();
@@ -1034,13 +1049,13 @@ void QuadPlane::multicopter_attitude_rate_update(float yaw_rate_cds)
 
         if (use_multicopter_eulers) {
             attitude_control->input_euler_angle_roll_pitch_yaw(plane.nav_roll_cd,
-                                                               plane.nav_pitch_cd,
+            												   modified_pitch,
                                                                tilt.transition_yaw_cd,
                                                                true);
         } else {
             // use euler angle attitude control
             attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
-                                                                          plane.nav_pitch_cd,
+            															  modified_pitch,
                                                                           yaw_rate_cds);
         }
     } else {
@@ -2483,6 +2498,7 @@ bool QuadPlane::in_vtol_posvel_mode(void) const
  */
 void QuadPlane::vtol_position_controller(void)
 {
+	int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd, pitch_min_cd, pitch_max_cd);
     if (!setup()) {
         return;
     }
@@ -2582,7 +2598,7 @@ void QuadPlane::vtol_position_controller(void)
 
         // call attitude controller
         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
-                                                                             plane.nav_pitch_cd,
+        																modified_pitch,
                                                                              desired_auto_yaw_rate_cds() + get_weathervane_yaw_rate_cds());
         if (plane.auto_state.wp_proportion >= 1 ||
             plane.auto_state.wp_distance < 5) {
@@ -2688,9 +2704,10 @@ void QuadPlane::vtol_position_controller(void)
         const uint32_t _sensor_status_flags = ~health & enabled & present;
     	bool Lidar_health = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
     	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
-    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3 && height>0 && AP_Notify::flags.armed && !Lidar_health){
+    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3  && AP_Notify::flags.armed && !Lidar_health){
     		start_shutdown_motors = true;
     	} else{
+    		start_count = 0;
     		start_shutdown_motors = false;
     	}
     	if(start_shutdown_motors && start_count==0){
@@ -2807,9 +2824,11 @@ void QuadPlane::waypoint_controller(void)
     // run wpnav controller
     wp_nav->update_wpnav();
 
+    int32_t modified_pitch = constrain_int32(wp_nav->get_pitch(),pitch_min_cd, pitch_max_cd );
+
     // call attitude controller
     attitude_control->input_euler_angle_roll_pitch_yaw(wp_nav->get_roll(),
-                                                       wp_nav->get_pitch(),
+    												   modified_pitch,
                                                        wp_nav->get_yaw(),
                                                        true);
     // nav roll and pitch are controller by loiter controller
