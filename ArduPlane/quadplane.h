@@ -675,6 +675,8 @@ private:
 
     bool start_shutdown_motors{false};
     uint32_t start_count=0;
+    AP_Int32 pitch_min_cd;
+    AP_Int32 pitch_max_cd;
 
     // Q assist state, can be enabled, disabled or force. Default to enabled
     Q_ASSIST_STATE_ENUM q_assist_state = Q_ASSIST_STATE_ENUM::Q_ASSIST_ENABLED;
