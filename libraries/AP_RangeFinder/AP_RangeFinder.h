@@ -123,6 +123,8 @@ public:
 
     void set_log_rfnd_bit(uint32_t log_rfnd_bit) { _log_rfnd_bit = log_rfnd_bit; }
 
+    float get_distance1();
+
     /*
       Return the number of range finder instances. Note that if users
       sets up rangefinders with a gap in the types then this is the

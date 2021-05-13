@@ -134,7 +134,8 @@ void Plane::stabilize_pitch(float speed_scaler)
        demanded_pitch = landing.get_pitch_cd();
    }
 
-    SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, pitchController.get_servo_out(demanded_pitch - ahrs.pitch_sensor, 
+    int32_t modified_pitch = constrain_int32(demanded_pitch, quadplane.pitch_min_cd, quadplane.pitch_max_cd);
+    SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, pitchController.get_servo_out(modified_pitch - ahrs.pitch_sensor,
                                                                                            speed_scaler, 
                                                                                            disable_integrator));
 }

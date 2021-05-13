@@ -211,6 +211,8 @@ void Plane::update_logging1(void)
 
     if (should_log(MASK_LOG_ATTITUDE_MED))
         ahrs.Write_AOA_SSA();
+
+    Log_Write_ALTT();
 }
 
 /*

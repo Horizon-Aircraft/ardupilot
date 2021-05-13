@@ -32,8 +32,6 @@ void Plane::read_rangefinder(void)
     rangefinder.update();
 
     rangefinder_height_update();
-
-    Log_Write_ALTT();
 }
 
 /*

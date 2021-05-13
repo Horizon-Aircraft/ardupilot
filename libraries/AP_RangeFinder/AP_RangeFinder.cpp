@@ -786,6 +786,16 @@ bool RangeFinder::prearm_healthy(char *failure_msg, const uint8_t failure_msg_le
     return true;
 }
 
+
+float RangeFinder::get_distance1(){
+	const AP_RangeFinder_Backend *s = get_backend(0);
+    if (s == nullptr) {
+        return (float)0;
+    }
+
+    return (float)(s->distance_cm());
+}
+
 RangeFinder *RangeFinder::_singleton;
 
 namespace AP {

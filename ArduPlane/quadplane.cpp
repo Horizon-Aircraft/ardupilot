@@ -2696,15 +2696,16 @@ void QuadPlane::vtol_position_controller(void)
 
     	// This works fine in simulation, however a low pass filter may be required
     	// if the Lidar sensor data are too noisy. To be tested first.
-    	float height = plane.rangefinder_state.height_estimate;
-        uint32_t present;
+    	//float height = plane.relative_ground_altitude(plane.g.rangefinder_landing);
+        float height = plane.rangefinder.get_distance1()/100;
+    	uint32_t present;
         uint32_t enabled;
         uint32_t health;
         gcs().get_sensor_status_flags(present, enabled, health);
         const uint32_t _sensor_status_flags = ~health & enabled & present;
-    	bool Lidar_health = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
+        Lidar_not_healthy = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
     	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
-    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3  && AP_Notify::flags.armed && !Lidar_health){
+    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3  && AP_Notify::flags.armed && !Lidar_not_healthy){
     		start_shutdown_motors = true;
     	} else{
     		start_count = 0;
