@@ -249,6 +249,7 @@ struct PACKED log_ALTT {
     uint16_t hgt;
     bool shutdown_motors;
     bool Lidar_error;
+    int8_t stat;
 };
 
 void Plane::Log_Write_ALTT()
@@ -261,7 +262,8 @@ void Plane::Log_Write_ALTT()
 	        ,height  : plane.rangefinder.get_distance1()
 			,hgt	: hgt1
 			,shutdown_motors	:quadplane.start_shutdown_motors
-			,Lidar_error	:quadplane.Lidar_not_healthy,
+			,Lidar_error	:quadplane.Lidar_not_healthy
+			,stat	:(int8_t)(quadplane.poscontrol.state),
 	        };
 
 	    logger.WriteBlock(&pkt, sizeof(pkt));
@@ -468,7 +470,7 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: TimeUS: Time since system startup
 // @Field: ALTT:  target airspeed cm
   { LOG_ALTT_MSG, sizeof(log_ALTT),
-	"ALTT", "QfHBB",    "TimeUS,hgt,rng,shut,LER", "s----", "F----" },
+	"ALTT", "QfHBBb",    "TimeUS,hgt,rng,shut,LER,stat", "s-----", "F-----" },
 
 
 // @LoggerMessage: CMDI

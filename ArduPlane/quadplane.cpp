@@ -2693,38 +2693,6 @@ void QuadPlane::vtol_position_controller(void)
 
     case QPOS_LAND_FINAL:{
     	pos_control->set_alt_target_from_climb_rate(-land_speed_cms, plane.G_Dt, true);
-
-    	// This works fine in simulation, however a low pass filter may be required
-    	// if the Lidar sensor data are too noisy. To be tested first.
-    	//float height = plane.relative_ground_altitude(plane.g.rangefinder_landing);
-        float height = plane.rangefinder.get_distance1()/100;
-    	uint32_t present;
-        uint32_t enabled;
-        uint32_t health;
-        gcs().get_sensor_status_flags(present, enabled, health);
-        const uint32_t _sensor_status_flags = ~health & enabled & present;
-        Lidar_not_healthy = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
-    	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
-    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3  && AP_Notify::flags.armed && !Lidar_not_healthy){
-    		start_shutdown_motors = true;
-    	} else{
-    		start_count = 0;
-    		start_shutdown_motors = false;
-    	}
-    	if(start_shutdown_motors && start_count==0){
-    		start_count = AP_HAL::millis();
-    	}
-
-    	if((AP_HAL::millis() - start_count)/1e3 > land_time_out && start_shutdown_motors && AP_Notify::flags.armed) {
-    		// motors should be in the spin when armed state to warn user they could become active
-			motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::GROUND_IDLE);
-			motors->set_throttle(0);
-			last_motors_active_ms = 0;
-			plane.arming.disarm(AP_Arming::Method::LANDED);
-	    	start_count = 0;
-	    	start_shutdown_motors = false;
-	    	gcs().send_text(MAV_SEVERITY_NOTICE, "Landing forced shutdown, min alt reached");
-    	}
     	if ((options & OPTION_DISABLE_GROUND_EFFECT_COMP) == 0) {
     		ahrs.setTouchdownExpected(true);
     	}
@@ -3109,6 +3077,40 @@ bool QuadPlane::check_land_complete(void)
         // only apply to final landing phase
         return false;
     }
+
+   	// This works fine in simulation, however a low pass filter may be required
+    	// if the Lidar sensor data are too noisy. To be tested first.
+    	//float height = plane.relative_ground_altitude(plane.g.rangefinder_landing);
+        float height = plane.rangefinder.get_distance1()/100;
+    	uint32_t present;
+        uint32_t enabled;
+        uint32_t health;
+        gcs().get_sensor_status_flags(present, enabled, health);
+        const uint32_t _sensor_status_flags = ~health & enabled & present;
+        Lidar_not_healthy = (_sensor_status_flags & MAV_SYS_STATUS_SENSOR_LASER_POSITION) > 0;
+    	float minimum_safe_altitude = constrain_float(min_alt,0,0.5);
+    	if(height<minimum_safe_altitude  && height>minimum_safe_altitude/3  && AP_Notify::flags.armed && !Lidar_not_healthy){
+    		start_shutdown_motors = true;
+    	} else{
+    		start_count = 0;
+    		start_shutdown_motors = false;
+    	}
+    	if(start_shutdown_motors && start_count==0){
+    		start_count = AP_HAL::millis();
+    	}
+
+    	if((AP_HAL::millis() - start_count)/1e3 > land_time_out && start_shutdown_motors && AP_Notify::flags.armed) {
+    		// motors should be in the spin when armed state to warn user they could become active
+/*			motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::GROUND_IDLE);
+			motors->set_throttle(0);
+			last_motors_active_ms = 0;*/
+			plane.arming.disarm(AP_Arming::Method::LANDED);
+	    	start_count = 0;
+	    	start_shutdown_motors = false;
+	    	poscontrol.state = QPOS_LAND_COMPLETE;
+	    	gcs().send_text(MAV_SEVERITY_NOTICE, "Landing forced shutdown, min alt reached");
+	    	return true;
+    	}
     if (land_detector(4000)) {
         poscontrol.state = QPOS_LAND_COMPLETE;
         gcs().send_text(MAV_SEVERITY_INFO,"Land complete");
