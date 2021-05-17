@@ -985,7 +985,6 @@ void QuadPlane::update_yaw_target(void)
  */
 void QuadPlane::multicopter_attitude_rate_update(float yaw_rate_cds)
 {
-	int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd, pitch_min_cd, pitch_max_cd);
     check_attitude_relax();
 
     bool use_multicopter_control = in_vtol_mode() && !in_tailsitter_vtol_transition();
@@ -1049,13 +1048,13 @@ void QuadPlane::multicopter_attitude_rate_update(float yaw_rate_cds)
 
         if (use_multicopter_eulers) {
             attitude_control->input_euler_angle_roll_pitch_yaw(plane.nav_roll_cd,
-            												   modified_pitch,
+            										           plane.nav_pitch_cd,
                                                                tilt.transition_yaw_cd,
                                                                true);
         } else {
             // use euler angle attitude control
             attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
-            															  modified_pitch,
+																		  plane.nav_pitch_cd,
                                                                           yaw_rate_cds);
         }
     } else {
@@ -2498,8 +2497,7 @@ bool QuadPlane::in_vtol_posvel_mode(void) const
  */
 void QuadPlane::vtol_position_controller(void)
 {
-	int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd, pitch_min_cd, pitch_max_cd);
-    if (!setup()) {
+	 if (!setup()) {
         return;
     }
     setup_target_position();
@@ -2598,7 +2596,7 @@ void QuadPlane::vtol_position_controller(void)
 
         // call attitude controller
         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
-        																modified_pitch,
+        																plane.nav_pitch_cd,
                                                                              desired_auto_yaw_rate_cds() + get_weathervane_yaw_rate_cds());
         if (plane.auto_state.wp_proportion >= 1 ||
             plane.auto_state.wp_distance < 5) {
@@ -3303,7 +3301,10 @@ int8_t QuadPlane::forward_throttle_pct()
     // add in a component from our current pitch demand. This tends to
     // move us to zero pitch. Assume that LIM_PITCH would give us the
     // WP nav speed.
-    fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * plane.nav_pitch_cd / (float)plane.aparm.pitch_limit_max_cd;
+   // fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * plane.nav_pitch_cd / (float)plane.aparm.pitch_limit_max_cd;
+
+    int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd,pitch_min_cd, pitch_max_cd );
+    fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * modified_pitch / (float)pitch_max_cd;
 
     if (should_relax() && vel_ned.length() < 1) {
         // we may be landed
