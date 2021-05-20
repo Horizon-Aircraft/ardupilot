@@ -290,6 +290,8 @@ public:
     // lean_angles_to_accel - convert roll, pitch lean angles to lat/lon frame accelerations in cm/s/s
     void accel_to_lean_angles(float accel_x_cmss, float accel_y_cmss, float& roll_target, float& pitch_target) const;
 
+    void set_acc_fwd(float accel_x_cmss, float accel_y_cmss, float& roll_target, float& pitch_target);
+
     // lean_angles_to_accel - convert roll, pitch lean angles to lat/lon frame accelerations in cm/s/s
     void lean_angles_to_accel(float& accel_x_cmss, float& accel_y_cmss) const;
 
@@ -307,6 +309,8 @@ public:
     void set_vibe_comp(bool on_off) { _vibe_comp_enabled = on_off; }
 
     static const struct AP_Param::GroupInfo var_info[];
+
+    float get_acc_fwd(){return _acc_forward;}
 
 protected:
 
@@ -425,4 +429,5 @@ protected:
 
     // high vibration handling
     bool        _vibe_comp_enabled;     // true when high vibration compensation is on
+    float 		_acc_forward{0};
 };

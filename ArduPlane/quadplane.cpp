@@ -2794,10 +2794,11 @@ void QuadPlane::waypoint_controller(void)
     int32_t modified_pitch = constrain_int32(wp_nav->get_pitch(),pitch_min_cd, pitch_max_cd );
 
     // call attitude controller
-    attitude_control->input_euler_angle_roll_pitch_yaw(wp_nav->get_roll(),
-    												   modified_pitch,
-                                                       wp_nav->get_yaw(),
-                                                       true);
+	attitude_control->input_euler_angle_roll_pitch_yaw(wp_nav->get_roll(),
+        												   modified_pitch,
+                                                           wp_nav->get_yaw(),
+                                                           true);
+
     // nav roll and pitch are controller by loiter controller
     plane.nav_roll_cd = wp_nav->get_roll();
     plane.nav_pitch_cd = wp_nav->get_pitch();
@@ -3295,16 +3296,29 @@ int8_t QuadPlane::forward_throttle_pct()
 
     float fwd_vel_error = vel_error_body.x;
 
+
     // scale forward velocity error by maximum airspeed
     fwd_vel_error /= MAX(plane.aparm.airspeed_max, 5);
 
     // add in a component from our current pitch demand. This tends to
     // move us to zero pitch. Assume that LIM_PITCH would give us the
     // WP nav speed.
-   // fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * plane.nav_pitch_cd / (float)plane.aparm.pitch_limit_max_cd;
+    // fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * plane.nav_pitch_cd / (float)plane.aparm.pitch_limit_max_cd;
 
     int32_t modified_pitch = constrain_int32(plane.nav_pitch_cd,pitch_min_cd, pitch_max_cd );
-    fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * modified_pitch / (float)pitch_max_cd;
+
+    if(plane.control_mode == &plane.mode_qloiter ){
+    	fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * modified_pitch / (float)pitch_max_cd;
+    }else if ( plane.nav_pitch_cd>1000 || plane.nav_pitch_cd<-1000){
+    	fwd_vel_error -= (wp_nav->get_default_speed_xy() * 0.01f) * plane.nav_pitch_cd / 3000;
+    }else {
+    	fwd_vel_error =  vel_error_body.x;
+    	fwd_vel_error /= MAX(plane.aparm.airspeed_max, 5);
+    }
+
+
+
+    _velbodyerrorx = fwd_vel_error;
 
     if (should_relax() && vel_ned.length() < 1) {
         // we may be landed

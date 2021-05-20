@@ -184,6 +184,9 @@ public:
     };
     void set_q_assist_state(Q_ASSIST_STATE_ENUM state) {q_assist_state = state;};
 
+
+    float _velbodyerrorx{0};
+
 private:
     AP_AHRS_NavEKF &ahrs;
     AP_Vehicle::MultiCopter aparm;

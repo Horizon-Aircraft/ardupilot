@@ -1054,6 +1054,7 @@ void AC_PosControl::run_xy_controller(float dt)
 
     // update angle targets that will be passed to stabilize controller
     accel_to_lean_angles(_accel_target.x, _accel_target.y, _roll_target, _pitch_target);
+    set_acc_fwd(_accel_target.x, _accel_target.y, _roll_target, _pitch_target);
 }
 
 // get_lean_angles_to_accel - convert roll, pitch lean angles to lat/lon frame accelerations in cm/s/s
@@ -1067,6 +1068,11 @@ void AC_PosControl::accel_to_lean_angles(float accel_x_cmss, float accel_y_cmss,
     pitch_target = atanf(-accel_forward / (GRAVITY_MSS * 100.0f)) * (18000.0f / M_PI);
     float cos_pitch_target = cosf(pitch_target * M_PI / 18000.0f);
     roll_target = atanf(accel_right * cos_pitch_target / (GRAVITY_MSS * 100.0f)) * (18000.0f / M_PI);
+
+}
+
+void AC_PosControl::set_acc_fwd(float accel_x_cmss, float accel_y_cmss, float& roll_target, float& pitch_target){
+	_acc_forward = accel_x_cmss * _ahrs.cos_yaw() + accel_y_cmss * _ahrs.sin_yaw();
 }
 
 // get_lean_angles_to_accel - convert roll, pitch lean target angles to lat/lon frame accelerations in cm/s/s
