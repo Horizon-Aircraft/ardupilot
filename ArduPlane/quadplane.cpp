@@ -2896,10 +2896,11 @@ bool QuadPlane::do_vtol_takeoff(const AP_Mission::Mission_Command& cmd)
             return false;
         }
     } else {
-        plane.next_WP_loc.alt = plane.current_loc.alt + cmd.content.location.alt;
+        plane.next_WP_loc.alt = plane.current_loc.alt + cmd.content.location.alt-300;
     }
     throttle_wait = false;
 
+    gcs().send_text(MAV_SEVERITY_INFO, "Takeoff alt = %f", (float)plane.next_WP_loc.alt);
     // set target to current position
     loiter_nav->clear_pilot_desired_acceleration();
     loiter_nav->init_target();
@@ -3507,6 +3508,7 @@ bool QuadPlane::do_user_takeoff(float takeoff_altitude)
     plane.prev_WP_loc = plane.current_loc;
     plane.next_WP_loc = plane.current_loc;
     plane.next_WP_loc.alt += takeoff_altitude*100;
+    gcs().send_text(MAV_SEVERITY_INFO, "Takeoff alt = %f", takeoff_altitude);
     motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
     guided_start();
     guided_takeoff = true;

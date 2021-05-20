@@ -270,8 +270,8 @@ void Plane::Log_Write_ALTT()
 			,stat	:	(int8_t)(quadplane.poscontrol.state)
 			,pct	:	quadplane.vel_forward.last_pct
 			,acc_fwd	:	quadplane.pos_control->get_acc_fwd()
+			,integrator	:	quadplane.vel_forward.integrator
 			,velbodyxerror	:	quadplane._velbodyerrorx,
-
 	        };
 
 	    logger.WriteBlock(&pkt, sizeof(pkt));
