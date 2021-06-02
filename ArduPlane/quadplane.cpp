@@ -2896,7 +2896,7 @@ bool QuadPlane::do_vtol_takeoff(const AP_Mission::Mission_Command& cmd)
             return false;
         }
     } else {
-        plane.next_WP_loc.alt = plane.current_loc.alt + cmd.content.location.alt-300;
+        plane.next_WP_loc.alt = plane.current_loc.alt + cmd.content.location.alt;
     }
     throttle_wait = false;
 
